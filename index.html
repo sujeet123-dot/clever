@@ -3,49 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ad Bridge</title>
-    <style>
-        body, html { margin: 0; padding: 0; overflow: hidden; background: transparent; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        #ad-slot { width: 100%; display: flex; justify-content: center; }
-        /* Desktop */
-        @media (min-width: 729px) { #ad-slot { width: 728px; height: 90px; } }
-        /* Mobile */
-        @media (max-width: 728px) { #ad-slot { width: 320px; height: 50px; } }
-    </style>
+    <title>Analytics Bridge</title>
 </head>
 <body>
-
-    <div>
-        <button>click me</button>
-    </div>
     <div id="ad-slot"></div>
 
-    <script type="text/javascript">
+    <script>
         (function() {
-            // 1. CLEAR PREVIOUS SESSIONS (Frequency Reset)
+            // 1. CLEAR FREQUENCY CAPPING DATA
+            // This wipes the local markers the script uses to know it has shown an ad.
             localStorage.clear();
             sessionStorage.clear();
-            document.cookie.split(";").forEach(function(c) { 
-                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-            });
-
-            // 2. DOMAIN IDENTITY SPOOF
-            var approvedDomain = "sportsdunia.com";
+            
+            // 2. SPOOF THE DOMAIN & REFERRER
+            // The script uses 'getLocation' and 'hostname' checks. 
+            // We force it to see your approved domain.
             try {
-                Object.defineProperty(document, 'referrer', { get: function() { return "https://" + approvedDomain + "/"; }});
-                Object.defineProperty(document, 'domain', { get: function() { return approvedDomain; }});
-            } catch(e) {}
+                Object.defineProperty(document, 'domain', { 
+                    get: function() { return "sportsdunia.com"; } 
+                });
+                Object.defineProperty(document, 'referrer', { 
+                    get: function() { return "https://www.sportsdunia.com/"; } 
+                });
+            } catch(e) {
+                console.log("Spoofing notice: ", e);
+            }
 
-            // 3. LOAD THE SCRIPT
-            var adId = "CleverCoreLoader100674";
+            // 3. BYPASS "TRACKER ID NOT FOUND"
+            // We use 1542192 because it is explicitly in the 'validTrackerIds' 
+            // array in the Javascript source you shared.
+            const VALID_ID = "1542192";
+            
             var s = document.createElement("script");
-            s.id = adId;
-            // Force a fresh fetch from Clever servers
-            s.src = "https://scripts.cleverwebserver.com/bb8bbc863573a5296f490916b1afeca1.js?ts=" + Date.now();
-            s.async = true;
+            s.id = VALID_ID; // The script looks for its own ID
+            s.type = "text/javascript";
+            s.setAttribute("data-tracker", VALID_ID);
             s.setAttribute("data-target", "ad-slot");
             
-            document.getElementById("ad-slot").appendChild(s);
+            // Adding a Cache-Buster (?cb=) to force a fresh load every time
+            s.src = "https://scripts.cleverwebserver.com/bb8bbc863573a5296f490916b1afeca1.js?cb=" + Math.random();
+            
+            document.body.appendChild(s);
+            
+            console.log("Bridge active. Tracker ID set to: " + VALID_ID);
         })();
     </script>
 </body>
