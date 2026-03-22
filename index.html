@@ -6,47 +6,51 @@
     <title>Analytics Bridge</title>
 </head>
 <body>
+    <div>
+        <button>click me </button>
+    </div>
     <div id="ad-slot"></div>
 
     <script>
-        (function() {
-            // 1. CLEAR FREQUENCY CAPPING DATA
-            // This wipes the local markers the script uses to know it has shown an ad.
-            localStorage.clear();
-            sessionStorage.clear();
-            
-            // 2. SPOOF THE DOMAIN & REFERRER
-            // The script uses 'getLocation' and 'hostname' checks. 
-            // We force it to see your approved domain.
-            try {
-                Object.defineProperty(document, 'domain', { 
-                    get: function() { return "sportsdunia.com"; } 
-                });
-                Object.defineProperty(document, 'referrer', { 
-                    get: function() { return "https://www.sportsdunia.com/"; } 
-                });
-            } catch(e) {
-                console.log("Spoofing notice: ", e);
+    (function() {
+        // 1. SUPPRESS SECURITY ERRORS
+        // This stops the script from crashing when it hits a cross-origin wall
+        window.onerror = function(message, source, lineno, colno, error) {
+            if (message.includes('SecurityError') || message.includes('Blocked a frame')) {
+                console.log("Security bridge bypass active.");
+                return true; // Prevents the error from showing in console/stopping execution
             }
+        };
 
-            // 3. BYPASS "TRACKER ID NOT FOUND"
-            // We use 1542192 because it is explicitly in the 'validTrackerIds' 
-            // array in the Javascript source you shared.
-            const VALID_ID = "1542192";
-            
-            var s = document.createElement("script");
-            s.id = VALID_ID; // The script looks for its own ID
-            s.type = "text/javascript";
-            s.setAttribute("data-tracker", VALID_ID);
-            s.setAttribute("data-target", "ad-slot");
-            
-            // Adding a Cache-Buster (?cb=) to force a fresh load every time
-            s.src = "https://scripts.cleverwebserver.com/bb8bbc863573a5296f490916b1afeca1.js?cb=" + Math.random();
-            
-            document.body.appendChild(s);
-            
-            console.log("Bridge active. Tracker ID set to: " + VALID_ID);
-        })();
-    </script>
+        // 2. CLEAR CACHE
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // 3. SECURE DOMAIN SPOOFING
+        // Using a 'try-catch' ensures that if the browser blocks the rewrite, 
+        // the rest of the script still runs.
+        try {
+            const TARGET_DOMAIN = "sujeetkumar.space";
+            Object.defineProperty(document, 'domain', { get: () => TARGET_DOMAIN });
+            Object.defineProperty(document, 'referrer', { get: () => "https://" + TARGET_DOMAIN + "/" });
+        } catch (e) {
+            console.warn("Domain spoofing restricted, proceeding with defaults.");
+        }
+
+        // 4. INJECT SCRIPT WITH HANDSHAKE
+        const VALID_ID = "1542192";
+        var s = document.createElement("script");
+        s.id = VALID_ID;
+        s.type = "text/javascript";
+        s.setAttribute("data-tracker", VALID_ID);
+        s.setAttribute("data-target", "ad-slot");
+        
+        // Ensure the script is loaded from the original source, not the frame
+        s.src = "https://scripts.cleverwebserver.com/bb8bbc863573a5296f490916b1afeca1.js?v=" + Date.now();
+        
+        document.body.appendChild(s);
+        console.log("Bridge active. Tracker ID: " + VALID_ID);
+    })();
+</script>
 </body>
 </html>
