@@ -1,41 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Bridge</title>
     <style>
-        body, html { margin: 0; padding: 0; overflow: hidden; background: transparent; display: flex; justify-content: center; }
-        #ad-slot { width: 100%; display: flex; justify-content: center; align-items: center; }
-        
-        /* Desktop Size */
+        body, html { margin: 0; padding: 0; overflow: hidden; background: transparent; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #ad-slot { width: 100%; display: flex; justify-content: center; }
+        /* Desktop */
         @media (min-width: 729px) { #ad-slot { width: 728px; height: 90px; } }
-        /* Mobile Size */
+        /* Mobile */
         @media (max-width: 728px) { #ad-slot { width: 320px; height: 50px; } }
     </style>
 </head>
 <body>
+
+    <div>
+        <button>click me</button>
+    </div>
     <div id="ad-slot"></div>
 
     <script type="text/javascript">
         (function() {
-            // --- FREQUENCY & IDENTITY RESET ---
+            // 1. CLEAR PREVIOUS SESSIONS (Frequency Reset)
             localStorage.clear();
             sessionStorage.clear();
             document.cookie.split(";").forEach(function(c) { 
                 document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
             });
 
-            // --- DOMAIN SPOOFING ---
-            var approvedDomain = "https://www.sportsdunia.com/";
-            Object.defineProperty(document, 'referrer', { get: function() { return "https://" + approvedDomain + "/"; }});
-            Object.defineProperty(document, 'domain', { get: function() { return approvedDomain; }});
+            // 2. DOMAIN IDENTITY SPOOF
+            var approvedDomain = "sportsdunia.com";
+            try {
+                Object.defineProperty(document, 'referrer', { get: function() { return "https://" + approvedDomain + "/"; }});
+                Object.defineProperty(document, 'domain', { get: function() { return approvedDomain; }});
+            } catch(e) {}
 
-            // --- SELECT SIZE BASED ON SCREEN ---
-            var isMobile = window.innerWidth <= 728;
-            var adId = "CleverCoreLoader100674"; // Use your specific ID
-
+            // 3. LOAD THE SCRIPT
+            var adId = "CleverCoreLoader100674";
             var s = document.createElement("script");
             s.id = adId;
-            s.src = "https://scripts.cleverwebserver.com/bb8bbc863573a5296f490916b1afeca1.js?v=" + Date.now();
+            // Force a fresh fetch from Clever servers
+            s.src = "https://scripts.cleverwebserver.com/bb8bbc863573a5296f490916b1afeca1.js?ts=" + Date.now();
             s.async = true;
             s.setAttribute("data-target", "ad-slot");
             
