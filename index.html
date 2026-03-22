@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body, html { margin: 0; padding: 0; overflow: hidden; background: transparent; display: flex; justify-content: center; }
+        #ad-slot { width: 100%; display: flex; justify-content: center; align-items: center; }
+        
+        /* Desktop Size */
+        @media (min-width: 729px) { #ad-slot { width: 728px; height: 90px; } }
+        /* Mobile Size */
+        @media (max-width: 728px) { #ad-slot { width: 320px; height: 50px; } }
+    </style>
+</head>
+<body>
+    <div id="ad-slot"></div>
+
+    <script type="text/javascript">
+        (function() {
+            // --- FREQUENCY & IDENTITY RESET ---
+            localStorage.clear();
+            sessionStorage.clear();
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+
+            // --- DOMAIN SPOOFING ---
+            var approvedDomain = "https://www.sportsdunia.com/";
+            Object.defineProperty(document, 'referrer', { get: function() { return "https://" + approvedDomain + "/"; }});
+            Object.defineProperty(document, 'domain', { get: function() { return approvedDomain; }});
+
+            // --- SELECT SIZE BASED ON SCREEN ---
+            var isMobile = window.innerWidth <= 728;
+            var adId = "CleverCoreLoader100674"; // Use your specific ID
+
+            var s = document.createElement("script");
+            s.id = adId;
+            s.src = "https://scripts.cleverwebserver.com/bb8bbc863573a5296f490916b1afeca1.js?v=" + Date.now();
+            s.async = true;
+            s.setAttribute("data-target", "ad-slot");
+            
+            document.getElementById("ad-slot").appendChild(s);
+        })();
+    </script>
+</body>
+</html>
